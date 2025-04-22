@@ -1,0 +1,218 @@
+/* Reset some browser default styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  body {
+    height: 100vh;
+    background: linear-gradient(135deg, #e0eafc, #cfdef3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .container {
+    width: 100%;
+    max-width: 850px;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+  }
+  
+  .cover {
+    width: 50%;
+    background: linear-gradient(135deg, #89f7fe, #66a6ff);
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: white;
+    position: relative;
+    z-index: 1;
+    transition: transform 0.6s ease-in-out;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .cover img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+    border-radius: 10px;
+  }
+  
+  /* TEXT SECTIONS */
+  .cover .front-text,
+  .cover .back-text {
+    display: none;
+  }
+  
+  .cover .text-1 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .cover .text-2 {
+    font-size: 16px;
+    opacity: 0.9;
+  }
+  
+  /* Default state: show login text */
+  #flip:not(:checked) ~ .cover .front-text {
+    display: block;
+  }
+  
+  /* Checked state: show signup text */
+  #flip:checked ~ .cover .back-text {
+    display: block;
+  }
+  
+  .forms {
+    width: 50%;
+    padding: 40px;
+    background-color: #fff;
+    position: relative;
+    z-index: 2;
+    transition: transform 0.6s ease-in-out;
+  }
+  
+  input[type="checkbox"] {
+    display: none;
+  }
+  
+  /* Flip behavior */
+  #flip:checked ~ .cover {
+    transform: translateX(100%);
+  }
+  
+  #flip:checked ~ .forms {
+    transform: translateX(-100%);
+  }
+  
+  .form-content {
+    width: 100%;
+  }
+  
+  .login-form,
+  .signup-form {
+    display: none;
+  }
+  
+  #flip:not(:checked) ~ .forms .login-form {
+    display: block;
+  }
+  
+  #flip:checked ~ .forms .signup-form {
+    display: block;
+  }
+  
+  .title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .input-boxes {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .input-box {
+    position: relative;
+  }
+  
+  .input-box i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+  }
+  
+  .input-box input,
+  .input-box select {
+    width: 100%;
+    padding: 12px 12px 12px 40px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+    transition: 0.3s;
+  }
+  
+  .input-box input:focus,
+  .input-box select:focus {
+    border-color: #66a6ff;
+    box-shadow: 0 0 5px rgba(102, 166, 255, 0.5);
+  }
+  
+  .button input[type="submit"] {
+    background: #66a6ff;
+    border: none;
+    color: white;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .button input[type="submit"]:hover {
+    background: #4a90e2;
+  }
+  
+  .text {
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .text a {
+    color: #4a90e2;
+    text-decoration: none;
+  }
+  
+  .text a:hover {
+    text-decoration: underline;
+  }
+  
+  .sign-up-text label {
+    color: #4a90e2;
+    cursor: pointer;
+  }
+  
+  @media screen and (max-width: 768px) {
+    .container {
+      flex-direction: column;
+      max-height: 100%;
+    }
+  
+    .cover,
+    .forms {
+      width: 100%;
+      padding: 30px;
+    }
+  
+    #flip:checked ~ .cover,
+    #flip:checked ~ .forms {
+      transform: none;
+    }
+  
+    .login-form,
+    .signup-form {
+      display: block !important;
+    }
+  }
+  
