@@ -3,22 +3,17 @@ session_start();
 require_once 'config.php';
 
 // Ensure the user is an Admin
-if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] != 1) {
+if ($_SESSION['role_id'] != 1) {
     header("Location: index.php"); // Redirect non-admin users
     exit();
 }
 
-
 $company_id = $_SESSION['company_id'];
 
-// Fetch company-specific data
-$stmt = $pdo->prepare("SELECT SUM(price) FROM sales WHERE company_id = ?");
+// Fetch products for this company
+$stmt = $pdo->prepare("SELECT p.*, c.category_name FROM products p JOIN categories c ON p.category_id = c.category_id WHERE p.company_id = ?");
 $stmt->execute([$company_id]);
-$total_sales = $stmt->fetchColumn();
-
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM products WHERE company_id = ?");
-$stmt->execute([$company_id]);
-$total_inventory = $stmt->fetchColumn();
+$products = $stmt->fetchAll();
 
 function getRoleName($role_id) {
     switch ($role_id) {
@@ -31,14 +26,12 @@ function getRoleName($role_id) {
 ?>
 
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard</title>
+  <title>Manage Products</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -48,68 +41,51 @@ function getRoleName($role_id) {
       position: fixed;
       top: 0; left: 0;
       height: 100%;
-      width: 250px;
+      width: 220px;
       background-color: #343a40;
       padding-top: 20px;
-      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     }
     .sidebar ul {
       list-style-type: none;
       padding: 0;
     }
     .sidebar ul li {
-      padding: 15px 20px;
+      padding: 15px;
     }
     .sidebar ul li a {
       color: #ffffff;
       text-decoration: none;
       display: block;
-      font-size: 16px;
     }
     .sidebar ul li a:hover {
       background-color: #495057;
-      border-radius: 5px;
-      transition: background-color 0.3s;
+      border-radius: 4px;
     }
     .main-content {
-      margin-left: 270px;
-      padding: 30px;
+      margin-left: 240px;
+      padding: 20px;
     }
-    h1 {
+    h1, h2 {
       color: #343a40;
-      font-size: 28px;
-      margin-bottom: 20px;
     }
-    .overview {
-      display: flex;
-      gap: 20px;
-      margin-bottom: 30px;
-    }
-    .overview .box {
+    .section {
+      margin-bottom: 40px;
       background: white;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      flex: 1;
-      text-align: center;
-      transition: transform 0.3s;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-    .overview .box:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    table {
+      border-collapse: collapse;
+      width: 100%;
     }
-    .box h2 {
-      font-size: 20px;
-      color: #343a40;
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
     }
-    .box p {
-      font-size: 24px;
-      font-weight: bold;
-      color: #28a745;
-    }
-    .box i {
-      font-size: 30px;
-      color: #28a745;
+    th {
+      background-color: #f1f1f1;
     }
   </style>
 </head>
@@ -127,28 +103,47 @@ function getRoleName($role_id) {
   </div>
 
   <!-- Main Content Area -->
-
   <div class="main-content">
-    <h1>Admin Dashboard</h1>
+    <a href="supplier_requests.php" class="btn btn-primary">View Supplier Requests</a>
 
-```
-<div class="overview">
-  <div class="box">
-    <i class="fas fa-dollar-sign"></i>
-    <h2>Total Sales</h2>
-    <p><?php echo '$' . number_format($total_sales, 2); ?></p>
-  </div>
-  <div class="box">
-    <i class="fas fa-boxes"></i>
-    <h2>Total Inventory</h2>
-    <p><?php echo $total_inventory . ' items'; ?></p>
-  </div>
-</div>
-```
+    <h1>Manage Products</h1>
 
+    <!-- Product List Section -->
+    <div class="section">
+      <h2>Product List</h2>
+      <a href="add_product.php" class="btn btn-primary">Add New Product</a>
+      <table>
+        <thead>
+          <tr>
+            <th>Product ID</th>
+            <th>Product Name</th>
+            <th>Category</th>
+            <th>Stock</th>
+            <th>Price</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php
+          foreach ($products as $product) {
+              echo "<tr>
+                      <td>{$product['product_id']}</td>
+                      <td>{$product['name']}</td>
+                      <td>{$product['category_name']}</td>
+                      <td>{$product['stock']}</td>
+                      <td>\${$product['price']}</td>
+                      <td>
+                          <a href='edit_product.php?id={$product['product_id']}' class='btn btn-warning btn-sm'>Edit</a>
+                          <a href='delete_product.php?id={$product['product_id']}' onclick=\"return confirm('Are you sure you want to delete this product?')\" class='btn btn-danger btn-sm'>Delete</a>
+                      </td>
+                    </tr>";
+          }
+          ?>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>

@@ -37,6 +37,7 @@ $recent_sales = $stmt->fetchAll();
         <a href="start_sale.php" class="btn btn-primary">🛒 Start New Sale</a>
         <a href="process_sale.php" class="btn btn-primary">➕ Add Items to Sale</a>
         <a href="sale_details.php" class="btn btn-primary">📄 Complete Sale</a>
+        <a href="seller_change_password.php" class="btn btn-warning">🔒 Change Password</a>
         <a href="logout.php" class="btn btn-danger">🚪 Logout</a>
       </div>
     </div>

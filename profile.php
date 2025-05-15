@@ -85,13 +85,13 @@ $user = $stmt->fetch();
                 </div>
 
                 <button type="submit" class="btn btn-success">Update Profile</button>
-                <a href="user_dashboard.php" class="btn btn-secondary">Back to Dashboard</a>
+                <a href="supplier_dashboard.php" class="btn btn-secondary">Back to Dashboard</a>
 
                 <?php if ($updateSuccess): ?>
                     <div class="alert alert-success mt-3">Profile updated successfully! Redirecting...</div>
                     <script>
                         setTimeout(() => {
-                            window.location.href = 'user_dashboard.php';
+                            window.location.href = 'supplier_dashboard.php';
                         }, 2000); // 2-second delay
                     </script>
                 <?php endif; ?>

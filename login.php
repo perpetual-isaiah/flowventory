@@ -9,19 +9,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    // Fetch user and their company's approval status
+    // Use LEFT JOIN to allow users without a company (like Super Admin)
     $stmt = $pdo->prepare("
         SELECT u.*, c.status AS company_status 
         FROM users u 
-        JOIN companies c ON u.company_id = c.company_id 
+        LEFT JOIN companies c ON u.company_id = c.company_id 
         WHERE u.email = ?
     ");
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
+    // Check if user exists and password matches
     if ($user && password_verify($password, $user['password_hash'])) {
-        if ($user['company_status'] != 1) {
-            // Company is not approved yet
+        // If not Super Admin, check if company is approved
+        if ($user['role_id'] != 5 && $user['company_status'] != 1) {
             $response['success'] = false;
             $response['message'] = "Your company is still pending approval.";
         } else {
@@ -30,13 +31,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['role_id'] = $user['role_id'];
             $_SESSION['company_id'] = $user['company_id'];
 
-            if ($_SESSION['role_id'] == 5) { // Super Admin
-                $response['success'] = true;
-                $response['role'] = $user['role_id'];
+            $response['success'] = true;
+            $response['role'] = $user['role_id'];
+
+            // Redirect based on role
+            if ($user['role_id'] == 5) {
                 $response['redirect'] = 'super_admin_dashboard.php';
             } else {
-                $response['success'] = true;
-                $response['role'] = $user['role_id'];
                 $response['redirect'] = 'dashboard.php';
             }
         }

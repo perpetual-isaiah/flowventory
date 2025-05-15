@@ -41,26 +41,24 @@ $pendingCompanies = $stmt->fetchAll();
 <html>
 <head>
     <title>Super Admin - Approve Companies</title>
+    <link rel="stylesheet" href="sastyles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
-        table {
-            border-collapse: collapse;
-            width: 60%;
-        }
-        th, td {
-            border: 1px solid #999;
-            padding: 8px;
-        }
-        .message {
-            margin: 10px 0;
-            padding: 10px;
-            color: white;
-            background-color: #4CAF50;
-            border-radius: 4px;
-            width: fit-content;
-        }
+       
     </style>
 </head>
 <body>
+    
+<div class="sidebar">
+        <h2>Super Admin</h2>
+        <a href="super_admin_dashboard.php">Dashboard</a>
+        <a href="company_approval.php">Pending Approvals</a>
+        <a href="sa_user_management.php">Users</a>
+        <a href="settings.php">Settings</a>
+        <a href="logout.php">Logout</a>
+    </div>
+
+    <div class="content">
 
 <h2>Pending Company Approvals</h2>
 
@@ -91,5 +89,25 @@ $pendingCompanies = $stmt->fetchAll();
     <p>No pending companies.</p>
 <?php endif; ?>
 
+<script>
+// Custom confirmation dialog
+function confirmAction(message) {
+    if (window.innerWidth <= 768) {
+        return window.confirm(message);
+    }
+    // You can add more logic here if you want a custom modal for desktop screens
+    return window.confirm(message);
+}
+
+// Usage in the form
+document.querySelectorAll('.reject-btn').forEach(button => {
+    button.addEventListener('click', function(event) {
+        const confirmed = confirmAction("Are you sure you want to reject this company?");
+        if (!confirmed) {
+            event.preventDefault();
+        }
+    });
+});
+</script>
 </body>
 </html>

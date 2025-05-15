@@ -16,7 +16,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $role_id = $_POST['role_id'];
     $first_name = $_POST['first_name'];
     $last_name = $_POST['last_name'];
-    $email = $_POST['email'];
+    $email = trim($_POST['email']);  // Trim email for extra spaces
+
+    // Validate email format
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        die("Invalid email format. Please enter a valid email address.");
+    }
+
+    // Validate email domain (check if domain has valid MX records)
+    list($user, $domain) = explode('@', $email);
+    if (!checkdnsrr($domain, 'MX')) {
+        die("Invalid email domain. Please use a valid domain like @example.com.");
+    }
 
     $company_id = $_SESSION['company_id'];
     $temp_password = bin2hex(random_bytes(4)); // 8-char temporary password
@@ -31,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $user_id = $pdo->lastInsertId();
 
         // If Supplier, insert into suppliers table too
-        if ($role_id == 3) { // Changed to Supplier role_id
+        if ($role_id == 3) { // Supplier role_id
             $phone = $_POST['phone'];
             $address = $_POST['address'];
             $city = $_POST['city'];
@@ -41,7 +52,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $stmt->execute([$user_id, "$first_name $last_name", $email, $phone, $address, $city]);
         }
 
-        echo "<p>User added successfully. Temporary password: <strong>$temp_password</strong></p>";
+        $_SESSION['temp_password'] = $temp_password;
+        $_SESSION['new_user_email'] = $email;
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit;
+        
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();
     }
@@ -59,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
     <div class="container">
         <h2>Add New User</h2>
-        <form method="POST" action="">
+        <form method="POST" action="" onsubmit="return validateForm()">
             <label>First Name:</label>
             <input type="text" name="first_name" required><br>
 
@@ -79,23 +94,71 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div id="supplierFields" class="supplier-fields" style="display: none;">
                 <h4>Supplier Info</h4>
                 <label>Phone:</label>
-                <input type="text" name="phone"><br>
+                <input type="tel" name="phone" id="phone" pattern="\d+" title="Only numbers are allowed" required><br>
                 <label>Address:</label>
-                <input type="text" name="address"><br>
+                <input type="text" name="address" id="address" required><br>
                 <label>City:</label>
-                <input type="text" name="city"><br>
+                <input type="text" name="city" id="city" required><br>
             </div>
 
             <button type="submit" class="submit-btn">Add User</button>
         </form>
 
+        <?php if (isset($_SESSION['temp_password'])): ?>
+        <div id="toast" class="toast">
+            <p>User <strong><?= $_SESSION['new_user_email'] ?></strong> added successfully.<br>
+            Temporary Password: <strong><?= $_SESSION['temp_password'] ?></strong></p>
+            <button onclick="document.getElementById('toast').style.display='none'">Close</button>
+        </div>
+        <?php
+        unset($_SESSION['temp_password']);
+        unset($_SESSION['new_user_email']);
+        endif;
+        ?>
+
         <a href="admin_dashboard.php" class="home-btn">Back to Home</a>
+
     </div>
 
     <script>
+        // Function to show/hide Supplier fields
         function toggleSupplierFields() {
             const role = document.getElementById("role").value;
-            document.getElementById("supplierFields").style.display = (role == "3") ? "block" : "none";
+            const supplierFields = document.getElementById("supplierFields");
+
+            // Show or hide fields based on role selection
+            if (role == "3") {
+                supplierFields.style.display = "block";
+                document.getElementById('phone').removeAttribute('disabled');
+                document.getElementById('address').removeAttribute('disabled');
+                document.getElementById('city').removeAttribute('disabled');
+            } else {
+                supplierFields.style.display = "none";
+                document.getElementById('phone').setAttribute('disabled', 'true');
+                document.getElementById('address').setAttribute('disabled', 'true');
+                document.getElementById('city').setAttribute('disabled', 'true');
+            }
+        }
+
+        // Validate phone number and ensure it's numeric
+        function validatePhoneInput() {
+            const phoneInput = document.getElementById('phone');
+            phoneInput.value = phoneInput.value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+        }
+
+        // Validate the form on submission
+        function validateForm() {
+            const role = document.getElementById("role").value;
+
+            // If the user is a Supplier, validate the phone number
+            if (role == "3") {  // Supplier
+                const phone = document.getElementById('phone').value;
+                if (phone && !/^\d+$/.test(phone)) {
+                    alert("Phone number must contain only numbers.");
+                    return false;
+                }
+            }
+            return true; // Allow form submission if validation passes
         }
     </script>
 </body>

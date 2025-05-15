@@ -1,12 +1,36 @@
 <?php
 require_once 'config.php';
 
+function isAllowedEmailDomain($email) {
+    $allowed_domains = ['yahoo.com', 'hotmail.com', 'gmail.com', 'bing.com', 'icloud.com', 'outlook.com'];
+    $domain = strtolower(substr(strrchr($email, "@"), 1));
+    return in_array($domain, $allowed_domains);
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $firstName = $_POST['first_name'];
-    $lastName = $_POST['last_name'];
-    $companyName = trim($_POST['company_name']);
-    $email = $_POST['email'];
+    // Sanitize inputs to prevent XSS and other issues
+    $firstName = htmlspecialchars(trim($_POST['first_name']));
+    $lastName = htmlspecialchars(trim($_POST['last_name']));
+    $companyName = htmlspecialchars(trim($_POST['company_name']));
+    $email = htmlspecialchars(trim($_POST['email']));
     $password = $_POST['password'];
+
+    // Validate email domain
+    if (!isAllowedEmailDomain($email)) {
+        echo '<script>alert("Signup failed: Only emails from yahoo, hotmail, gmail, bing, icloud, or outlook are allowed."); window.history.back();</script>';
+        exit;
+    }
+
+    // Validate password strength
+    if (
+        strlen($password) < 8 ||
+        !preg_match("/[A-Z]/", $password) ||
+        !preg_match("/[0-9]/", $password) ||
+        !preg_match("/[!@#$%^&*(),.?\":{}|<>]/", $password)
+    ) {
+        echo '<script>alert("Password must be at least 8 characters, include an uppercase letter, a number, and a special character."); window.history.back();</script>';
+        exit;
+    }
 
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
     $role_id = 1; // Default role for new company registration (Admin)
@@ -26,12 +50,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $company_id = $pdo->lastInsertId();
         }
 
-        // Insert user with company_id and role_id = 1 (Admin)
+        // Insert user
         $stmt = $pdo->prepare("INSERT INTO users (first_name, last_name, email, password_hash, company_id, role_id)
                                VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->execute([$firstName, $lastName, $email, $hashedPassword, $company_id, $role_id]);
 
-        echo "Signup successful! Your company is pending approval.";
+        // Success message and redirect
+        echo '<script>
+            alert("Signup successful! Your company is pending approval.");
+            window.location.href = "index.php";
+        </script>';
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();
     }
