@@ -29,6 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Login success
             $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['role_id'] = $user['role_id'];
+            $_SESSION['email'] = $user['email'];  
             $_SESSION['company_id'] = $user['company_id'];
 
             $response['success'] = true;

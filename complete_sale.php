@@ -34,15 +34,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $total_amount = $item['price'] * $item['quantity'];
 
                     // Insert sale row
-                    $stmt = $pdo->prepare("INSERT INTO sales (product_id, quantity, price, sale_date, company_id, user_id, discount, total_amount) VALUES (?, ?, ?, NOW(), ?, ?, 0.00, ?)");
+                    $stmt = $pdo->prepare("INSERT INTO sales 
+                    (product_id, quantity, price, sale_date, company_id, user_id, processed_by_email, discount, total_amount)
+                    VALUES (?, ?, ?, NOW(), ?, ?, ?, 0.00, ?)");
+
                     $stmt->execute([
                         $item['product_id'],
                         $item['quantity'],
                         $item['price'],
                         $_SESSION['company_id'],
                         $_SESSION['user_id'] ?? null,
+                        $_SESSION['email'] ?? 'unknown@domain.com',
                         $total_amount
                     ]);
+
 
                     // Update stock
                    $stmtUpdateStock = $pdo->prepare("UPDATE products SET stock = stock - ? WHERE product_id = ? AND company_id = ? AND stock >= ?");
@@ -71,6 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'payment_method' => htmlspecialchars($payment_method),
                     'date' => date('Y-m-d H:i:s'),
                     'user_id' => $_SESSION['user_id'] ?? 'N/A',
+                    'email' => $_SESSION['email'] ?? 'N/A',
                 ];
 
                 // Clear cart and sale flag
@@ -92,6 +98,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html>
 <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- jsPDF and AutoTable plugin for PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <title>Sale Receipt</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 30px; background: #f7f9fc; }
@@ -165,6 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="info">
             <strong>Date:</strong> <?= htmlspecialchars($receipt['date']) ?><br>
             <strong>Processed By User ID:</strong> <?= htmlspecialchars($receipt['user_id']) ?><br>
+            <strong>Processed By:</strong> <?= htmlspecialchars($receipt['email']) ?><br>
             <strong>Payment Method:</strong> <?= htmlspecialchars(ucfirst($receipt['payment_method'])) ?>
         </div>
 
@@ -192,10 +203,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </tr>
             </tbody>
         </table>
+<div style="text-align:center; margin-bottom: 20px;">
+    <button onclick="exportToExcel()" style="margin-right: 10px; padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px;">Export to Excel</button>
+    <button onclick="exportToPDF()" style="padding: 10px 20px; background-color: #dc3545; color: white; border: none; border-radius: 5px;">Export to PDF</button>
+    <button onclick="window.print()" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px;">Print Receipt</button>
+
+</div>
+
 
         <a href="start_sale.php" class="btn-back">Start New Sale</a>
     </div>
 <?php endif; ?>
 
 </body>
+
+<script>
+function exportToExcel() {
+    const table = document.querySelector("table");
+    const wb = XLSX.utils.table_to_book(table, { sheet: "Receipt" });
+    XLSX.writeFile(wb, "receipt.xlsx");
+}
+
+async function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.setFontSize(14);
+    doc.text("🧾 Sales Receipt", 15, 15);
+
+    // Convert HTML table to autoTable
+    const table = document.querySelector("table");
+    doc.autoTable({
+        html: table,
+        startY: 25,
+        styles: { fontSize: 10 },
+    });
+
+    doc.save("receipt.pdf");
+}
+</script>
 </html>

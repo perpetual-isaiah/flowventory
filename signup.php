@@ -8,7 +8,7 @@ function isAllowedEmailDomain($email) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Sanitize inputs to prevent XSS and other issues
+    // Sanitize inputs
     $firstName = htmlspecialchars(trim($_POST['first_name']));
     $lastName = htmlspecialchars(trim($_POST['last_name']));
     $companyName = htmlspecialchars(trim($_POST['company_name']));
@@ -17,7 +17,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Validate email domain
     if (!isAllowedEmailDomain($email)) {
-        echo '<script>alert("Signup failed: Only emails from yahoo, hotmail, gmail, bing, icloud, or outlook are allowed."); window.history.back();</script>';
+        ?>
+        <script>
+            alert("Signup failed: Only emails from yahoo, hotmail, gmail, bing, icloud, or outlook are allowed.");
+            window.history.back();
+        </script>
+        <?php
         exit;
     }
 
@@ -28,12 +33,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         !preg_match("/[0-9]/", $password) ||
         !preg_match("/[!@#$%^&*(),.?\":{}|<>]/", $password)
     ) {
-        echo '<script>alert("Password must be at least 8 characters, include an uppercase letter, a number, and a special character."); window.history.back();</script>';
+        ?>
+        <script>
+            alert("Password must be at least 8 characters, include an uppercase letter, a number, and a special character.");
+            window.history.back();
+        </script>
+        <?php
         exit;
     }
 
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-    $role_id = 1; // Default role for new company registration (Admin)
+    $role_id = 1; // Admin role for new company
 
     try {
         // Check if company already exists
@@ -54,12 +64,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt = $pdo->prepare("INSERT INTO users (first_name, last_name, email, password_hash, company_id, role_id)
                                VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->execute([$firstName, $lastName, $email, $hashedPassword, $company_id, $role_id]);
-
-        // Success message and redirect
-        echo '<script>
+        ?>
+        <script>
             alert("Signup successful! Your company is pending approval.");
             window.location.href = "index.php";
-        </script>';
+        </script>
+        <?php
+        exit;
+
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();
     }

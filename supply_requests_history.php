@@ -9,9 +9,31 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role_id'] != 3) {
 }
 
 $user_id = $_SESSION['user_id'];
-$company_id = $_SESSION['company_id'];
 
-// Fetch supplier requests
+// Fetch companies linked to this supplier
+$company_stmt = $pdo->prepare("
+    SELECT c.company_id, c.company_name 
+    FROM supplier_company cs
+    JOIN companies c ON cs.company_id = c.company_id
+    WHERE cs.supplier_id = ?
+");
+$company_stmt->execute([$user_id]);
+$companies = $company_stmt->fetchAll();
+
+// If no companies found, show a warning
+if (empty($companies)) {
+    echo "<div class='container' style='margin-left:270px; margin-top:30px'>
+            <div class='alert alert-warning'>
+                <strong>Note:</strong> You are not linked to any company yet. Please contact your administrator.
+            </div>
+          </div>";
+    exit;
+}
+
+// Get selected company from dropdown or default to first
+$selected_company_id = $_POST['company_id'] ?? $companies[0]['company_id'];
+
+// Fetch supply requests for selected company
 $stmt = $pdo->prepare("
     SELECT sr.*, p.name AS product_name 
     FROM supply_requests sr
@@ -19,7 +41,7 @@ $stmt = $pdo->prepare("
     WHERE sr.supplier_id = ? AND sr.company_id = ?
     ORDER BY sr.request_date DESC
 ");
-$stmt->execute([$user_id, $company_id]);
+$stmt->execute([$user_id, $selected_company_id]);
 $requests = $stmt->fetchAll();
 ?>
 
@@ -30,9 +52,7 @@ $requests = $stmt->fetchAll();
     <title>Supply Request History</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -97,18 +117,18 @@ $requests = $stmt->fetchAll();
         <div class="card-header">Your Supply Request History</div>
         <div class="card-body">
 
-        <form method="POST" class="mb-4">
-        <label for="company_id" class="form-label">Select Company</label>
-        <select name="company_id" id="company_id" class="form-select" onchange="this.form.submit()">
-            <?php foreach ($companies as $company): ?>
-                <option value="<?= htmlspecialchars($company['company_id']) ?>"
-                    <?= $company['company_id'] == $selected_company_id ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($company['name']) ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-    </form>
-    
+            <form method="POST" class="mb-4">
+                <label for="company_id" class="form-label">Select Company</label>
+                <select name="company_id" id="company_id" class="form-select" onchange="this.form.submit()">
+                    <?php foreach ($companies as $company): ?>
+                        <option value="<?= htmlspecialchars($company['company_id']) ?>"
+                            <?= $company['company_id'] == $selected_company_id ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($company['company_name']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </form>
+
             <?php if (count($requests) > 0): ?>
                 <table class="table table-striped">
                     <thead>
@@ -123,10 +143,10 @@ $requests = $stmt->fetchAll();
                     <tbody>
                         <?php foreach ($requests as $row): ?>
                             <tr>
-                                <td><?php echo date('Y-m-d H:i', strtotime($row['request_date'])); ?></td>
-                                <td><?php echo htmlspecialchars($row['product_name']); ?></td>
-                                <td><?php echo htmlspecialchars($row['quantity_requested']); ?></td>
-                                <td><?php echo htmlspecialchars(number_format($row['supply_price'], 2)); ?></td>
+                                <td><?= date('Y-m-d H:i', strtotime($row['request_date'])); ?></td>
+                                <td><?= htmlspecialchars($row['product_name']); ?></td>
+                                <td><?= htmlspecialchars($row['quantity_requested']); ?></td>
+                                <td><?= htmlspecialchars(number_format($row['supply_price'], 2)); ?></td>
                                 <td>
                                     <?php
                                     $status = $row['status'] ?? 'pending';
@@ -136,8 +156,8 @@ $requests = $stmt->fetchAll();
                                         default => 'secondary'
                                     };
                                     ?>
-                                    <span class="badge bg-<?php echo $badge; ?>">
-                                        <?php echo ucfirst($status); ?>
+                                    <span class="badge bg-<?= $badge ?>">
+                                        <?= ucfirst($status); ?>
                                     </span>
                                 </td>
                             </tr>
@@ -145,7 +165,7 @@ $requests = $stmt->fetchAll();
                     </tbody>
                 </table>
             <?php else: ?>
-                <p>No supply requests found.</p>
+                <p>No supply requests found for the selected company.</p>
             <?php endif; ?>
         </div>
     </div>

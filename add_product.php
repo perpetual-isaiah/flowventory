@@ -58,19 +58,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         try {
+            // Use transaction for safety
+            $pdo->beginTransaction();
+
             // Insert into products
             $stmt = $pdo->prepare("INSERT INTO products (name, barcode, category_id, price, image, company_id) VALUES (?, ?, ?, ?, ?, ?)");
             $stmt->execute([$name, $barcode, $category_id, $price, $image_path, $company_id]);
             $product_id = $pdo->lastInsertId();
 
-            // Insert into supplier_products
-            $stmt = $pdo->prepare("INSERT INTO supplier_products (supplier_id, product_id, company_id, supply_price, quantity_supplied, is_approved) VALUES (?, ?, ?, ?, ?, 0)");
+            // Prepare statements once
+            $insertSupplierProduct = $pdo->prepare("INSERT INTO supplier_products (supplier_id, product_id, company_id, supply_price, quantity_supplied, is_approved) VALUES (?, ?, ?, ?, ?, 0)");
+            $checkSupplierCompany = $pdo->prepare("SELECT 1 FROM supplier_company WHERE supplier_id = ? AND company_id = ?");
+            $insertSupplierCompany = $pdo->prepare("INSERT INTO supplier_company (supplier_id, company_id) VALUES (?, ?)");
+
             foreach ($suppliers as $supplier_id) {
-                $stmt->execute([$supplier_id, $product_id, $company_id, null, 0]);
+                // Insert supplier_products
+                $insertSupplierProduct->execute([$supplier_id, $product_id, $company_id, null, 0]);
+
+                // Check if supplier-company link exists
+                $checkSupplierCompany->execute([$supplier_id, $company_id]);
+                if ($checkSupplierCompany->rowCount() === 0) {
+                    $insertSupplierCompany->execute([$supplier_id, $company_id]);
+                }
             }
 
+            $pdo->commit();
             $message = "Product added successfully!";
         } catch (Exception $e) {
+            $pdo->rollBack();
             $message = "Error: " . $e->getMessage();
         }
     }

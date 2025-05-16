@@ -64,6 +64,7 @@ $categories = $pdo->query("SELECT category_id, category_name FROM categories")->
 <html>
 <head>
     <title>Sales Report</title>
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
@@ -82,7 +83,7 @@ $categories = $pdo->query("SELECT category_id, category_name FROM categories")->
         .sidebar {
             position: fixed; top: 0; left: 0;
             width: 220px; height: 100%; background-color: #343a40;
-            padding-top: 20px;
+            
         }
         .sidebar ul { list-style: none; padding: 0; }
         .sidebar ul li { padding: 15px; }
@@ -106,14 +107,16 @@ $categories = $pdo->query("SELECT category_id, category_name FROM categories")->
 
 <div class="sidebar">
     <ul>
-        <li><a href="admin_dashboard.php">Dashboard</a></li>
-        <li><a href="aview_inventory.php">View Inventory</a></li>
-        <li><a href="user_management.php">Manage Users</a></li>
-        <li><a href="product_management.php">Manage Products</a></li>
-        <li><a href="transaction_reports.php">Reports</a></li>
-        <li><a href="logout.php">Logout</a></li>
+      <li><a href="admin_dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+      <li><a href="aview_inventory.php"><i class="fas fa-cogs"></i> View Inventory</a></li>
+      <li><a href="user_management.php"><i class="fas fa-users"></i> Manage Users</a></li>
+      <li><a href="product_management.php"><i class="fas fa-cogs"></i> Manage Products</a></li>
+      <li><a href="supply_history.php"><i class="fas fa-history"></i> Request History</a></li>
+      <li><a href="transaction_reports.php"><i class="fas fa-chart-line"></i> Reports</a></li>
+      <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
     </ul>
-</div>
+  </div>
+
 
 <div class="main-content">
     <h1>Cashier Sales Report</h1>

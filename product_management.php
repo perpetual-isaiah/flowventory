@@ -32,6 +32,9 @@ function getRoleName($role_id) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Manage Products</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -97,10 +100,12 @@ function getRoleName($role_id) {
       <li><a href="aview_inventory.php"><i class="fas fa-cogs"></i> View Inventory</a></li>
       <li><a href="user_management.php"><i class="fas fa-users"></i> Manage Users</a></li>
       <li><a href="product_management.php"><i class="fas fa-cogs"></i> Manage Products</a></li>
+      <li><a href="supply_history.php"><i class="fas fa-history"></i> Request History</a></li>
       <li><a href="transaction_reports.php"><i class="fas fa-chart-line"></i> Reports</a></li>
       <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
     </ul>
   </div>
+
 
   <!-- Main Content Area -->
   <div class="main-content">
@@ -126,18 +131,21 @@ function getRoleName($role_id) {
         <tbody>
           <?php
           foreach ($products as $product) {
-              echo "<tr>
-                      <td>{$product['product_id']}</td>
-                      <td>{$product['name']}</td>
-                      <td>{$product['category_name']}</td>
-                      <td>{$product['stock']}</td>
-                      <td>\${$product['price']}</td>
-                      <td>
-                          <a href='edit_product.php?id={$product['product_id']}' class='btn btn-warning btn-sm'>Edit</a>
-                          <a href='delete_product.php?id={$product['product_id']}' onclick=\"return confirm('Are you sure you want to delete this product?')\" class='btn btn-danger btn-sm'>Delete</a>
-                      </td>
-                    </tr>";
-          }
+    echo "<tr>
+            <td>{$product['product_id']}</td>
+            <td>{$product['name']}</td>
+            <td>{$product['category_name']}</td>
+            <td>{$product['stock']}</td>
+            <td>\${$product['price']}</td>
+            <td>
+              <a href='edit_product.php?id={$product['product_id']}' class='btn btn-warning btn-sm'>Edit</a>
+              
+              
+              <button class='btn btn-danger btn-sm delete-btn' data-id='{$product['product_id']}'>Delete</button>
+            </td>
+          </tr>";
+}
+
           ?>
         </tbody>
       </table>
@@ -145,5 +153,30 @@ function getRoleName($role_id) {
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".delete-btn").forEach(function (button) {
+      button.addEventListener("click", function () {
+        const productId = this.getAttribute("data-id");
+
+        Swal.fire({
+          title: "Are you sure?",
+          text: "You won’t be able to revert this!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = `delete_product.php?id=${productId}`;
+          }
+        });
+      });
+    });
+  });
+</script>
+
 </body>
 </html>

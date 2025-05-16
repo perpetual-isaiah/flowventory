@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['company_id'])) {
 $company_id = $_SESSION['company_id'];
 
 // Fetch products for the company
-$stmt = $pdo->prepare("SELECT name, description, quantity, price, image FROM products WHERE company_id = ?");
+$stmt = $pdo->prepare("SELECT name, description, stock, price, image FROM products WHERE company_id = ?");
 $stmt->execute([$company_id]);
 $products = $stmt->fetchAll();
 ?>
@@ -141,7 +141,7 @@ $products = $stmt->fetchAll();
                 </td>
                 <td><?php echo htmlspecialchars($product['name']); ?></td>
                 <td><?php echo htmlspecialchars($product['description']); ?></td>
-                <td><?php echo htmlspecialchars($product['quantity']); ?></td>
+                <td><?php echo htmlspecialchars($product['stock']); ?></td>
                 <td><?php echo number_format($product['price'], 2); ?></td>
               </tr>
             <?php endforeach; ?>

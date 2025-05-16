@@ -23,63 +23,58 @@ $products = $stmt->fetchAll();
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>View Inventory - Admin</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f8f9fa;
-    }
-    .sidebar {
-      position: fixed;
-      top: 0; left: 0;
-      height: 100%;
-      width: 220px;
-      background-color: #343a40;
-      padding-top: 20px;
-    }
-    .sidebar ul {
-      list-style-type: none;
-      padding: 0;
-    }
-    .sidebar ul li {
-      padding: 15px;
-    }
-    .sidebar ul li a {
-      color: #ffffff;
-      text-decoration: none;
-      display: block;
-    }
-    .sidebar ul li a:hover {
-      background-color: #495057;
-      border-radius: 4px;
-    }
-    .main-content {
-      margin-left: 240px;
-      padding: 20px;
-    }
-    h1, h2 {
-      color: #343a40;
-    }
-    .section {
-      margin-bottom: 40px;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
+     body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f8f9fa;
+            margin-left: 260px;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 100%;
+            width: 250px;
+            background-color: #343a40;
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .sidebar ul li {
+            padding: 15px 20px;
+        }
+        .sidebar ul li a {
+            color: #ffffff;
+            text-decoration: none;
+            display: block;
+            font-size: 16px;
+        }
+        .sidebar ul li a:hover {
+            background-color: #495057;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .container {
+            padding: 30px;
+        }
   </style>
 </head>
 <body>
   <!-- Sidebar Navigation -->
   <div class="sidebar">
     <ul>
-      <li><a href="admin_dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-      <li><a href="aview_inventory.php"><i class="fas fa-cogs"></i> View Inventory</a></li>
-      <li><a href="user_management.php"><i class="fas fa-users"></i> Manage Users</a></li>
-      <li><a href="product_management.php"><i class="fas fa-cogs"></i> Manage Products</a></li>
-      <li><a href="transaction_reports.php"><i class="fas fa-chart-line"></i> Reports</a></li>
-      <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        <li><a href="admin_dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+        <li><a href="aview_inventory.php"><i class="fas fa-cogs"></i> View Inventory</a></li>
+        <li><a href="user_management.php"><i class="fas fa-users"></i> Manage Users</a></li>
+        <li><a href="product_management.php"><i class="fas fa-cogs"></i> Manage Products</a></li>
+        <li><a href="supply_history.php"><i class="fas fa-history"></i> Request History</a></li>
+        <li><a href="transaction_reports.php"><i class="fas fa-chart-line"></i> Reports</a></li>
+        <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
     </ul>
-  </div>
+</div>
 
   <!-- Main Content Area -->
   <div class="main-content">
