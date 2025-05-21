@@ -66,15 +66,16 @@ $products = $stmt->fetchAll();
   <!-- Sidebar Navigation -->
   <div class="sidebar">
     <ul>
-        <li><a href="admin_dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-        <li><a href="aview_inventory.php"><i class="fas fa-cogs"></i> View Inventory</a></li>
-        <li><a href="user_management.php"><i class="fas fa-users"></i> Manage Users</a></li>
-        <li><a href="product_management.php"><i class="fas fa-cogs"></i> Manage Products</a></li>
-        <li><a href="supply_history.php"><i class="fas fa-history"></i> Request History</a></li>
-        <li><a href="transaction_reports.php"><i class="fas fa-chart-line"></i> Reports</a></li>
-        <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+      <li><a href="admin_dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+      <li><a href="aview_inventory.php"><i class="fas fa-boxes"></i> View Inventory</a></li>
+      <li><a href="user_management.php"><i class="fas fa-users"></i> Manage Users</a></li>
+      <li><a href="product_management.php"><i class="fas fa-box"></i> Manage Products</a></li>
+      <li><a href="supply_history.php"><i class="fas fa-history"></i> Request History</a></li>
+      <li><a href="transaction_reports.php"><i class="fas fa-chart-line"></i> Reports</a></li>
+      <li><a href="company_profile.php"><i class="fas fa-building"></i> Company Profile</a></li>
+      <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
     </ul>
-</div>
+  </div>
 
   <!-- Main Content Area -->
   <div class="main-content">
