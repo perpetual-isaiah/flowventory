@@ -21,13 +21,13 @@ if (empty($categories)) {
     exit;
 }
 
-// Fetch suppliers for this company
+// Fetch suppliers assigned to this company and with role_id = 3 (Supplier)
 $stmt = $pdo->prepare("
     SELECT s.user_id, s.name 
     FROM suppliers s
-    WHERE s.user_id IN (
-        SELECT user_id FROM users WHERE role_id = 3 AND company_id = ?
-    )
+    INNER JOIN supplier_company sc ON s.user_id = sc.supplier_id
+    INNER JOIN users u ON s.user_id = u.user_id
+    WHERE sc.company_id = ? AND u.role_id = 3
 ");
 $stmt->execute([$company_id]);
 $supplierList = $stmt->fetchAll();
